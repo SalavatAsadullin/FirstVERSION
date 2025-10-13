@@ -24,6 +24,7 @@ class Order(Base):
 
     user_id: Mapped[int] = mapped_column(ForeignKey("users.id"))
     address_id: Mapped[int] = mapped_column(ForeignKey("addresses.id"))
+    courier_id: Mapped[int | None] = mapped_column(ForeignKey("users.id"), nullable=True)
 
     bottles: Mapped[int] = mapped_column(Integer)
     exchange_bottles: Mapped[int] = mapped_column(Integer)
@@ -34,6 +35,7 @@ class Order(Base):
 
     status: Mapped[str] = mapped_column(String(20), default=OrderStatus.IN_PROGRESS.value, index=True)
 
+    contact_phone: Mapped[Optional[str]] = mapped_column(String(112), nullable=True)
     comment: Mapped[Optional[str]] = mapped_column(String(500), nullable=True)
 
     user = relationship("User", back_populates="orders")
