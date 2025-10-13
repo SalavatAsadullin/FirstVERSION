@@ -1,12 +1,15 @@
 from fastapi import FastAPI
-from .database import engine
-from .models import Base
-from .routers import orders
 
-# Создаем таблицы в БД
-Base.metadata.create_all(bind=engine)
+from app.core.config import get_settings
+from app.api.router import api_router
 
-app = FastAPI()
+settings = get_settings()
 
-# Подключаем роутер
-app.include_router(orders.router)
+app = FastAPI(title=settings.app_name)
+
+app.include_router(api_router, prefix="/api/v1")
+
+
+@app.get("/health")
+def healthcheck() -> dict[str, str]:
+    return {"status": "ok"}
