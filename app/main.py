@@ -1,12 +1,35 @@
 from fastapi import FastAPI
-from .database import engine
-from .models import Base
-from .routers import orders
+from fastapi.middleware.cors import CORSMiddleware
 
-# Создаем таблицы в БД
-Base.metadata.create_all(bind=engine)
+from .core.config import get_settings
+from .api.v1.orders import router as v1_orders
 
-app = FastAPI()
 
-# Подключаем роутер
-app.include_router(orders.router)
+settings = get_settings()
+
+app = FastAPI(title=settings.app_name)
+
+# CORS
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=settings.allowed_origins,
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
+
+@app.get("/health", tags=["system"])
+def health():
+    return {"status": "ok"}
+
+
+# Новый роутер API v1
+app.include_router(v1_orders)
+
+# Автоматическая инициализация схемы БД в dev окружении
+if settings.environment == "development":
+    from .database import Base, engine  # noqa: WPS433 (import within scope)
+    from . import models  # noqa: F401 — register models
+
+    Base.metadata.create_all(bind=engine)

@@ -1,26 +1,40 @@
-from pydantic import BaseModel
+from __future__ import annotations
 
-class OrderCreate(BaseModel):
+from datetime import datetime
+from typing import Optional
+
+from pydantic import BaseModel, ConfigDict, Field
+
+
+class OrderBase(BaseModel):
     city: str
     street: str
-    apartment: str
-    floor: int
-    entrance: str
-    bottles: int
-    comment: str
-    status: str
+    apartment: Optional[str] = None
+    floor: Optional[int] = None
+    entrance: Optional[str] = None
+    bottles: int = Field(ge=1)
+    comment: Optional[str] = None
+    status: Optional[str] = None
+
+
+class OrderCreate(OrderBase):
+    pass
+
 
 class OrderUpdate(BaseModel):
-    city: str | None = None
-    street: str | None = None
-    apartment: str | None = None
-    floor: int | None = None
-    entrance: str | None = None
-    bottles: int | None = None
-    comment: str | None = None
-    status: str | None = None
+    city: Optional[str] = None
+    street: Optional[str] = None
+    apartment: Optional[str] = None
+    floor: Optional[int] = None
+    entrance: Optional[str] = None
+    bottles: Optional[int] = Field(default=None, ge=1)
+    comment: Optional[str] = None
+    status: Optional[str] = None
 
-class Order(OrderCreate):
+
+class OrderResponse(OrderBase):
     id: int
+    created_at: datetime
+    updated_at: datetime
 
-
+    model_config = ConfigDict(from_attributes=True)
